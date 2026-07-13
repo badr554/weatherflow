@@ -1,32 +1,64 @@
-# React + TypeScript + Vite
+# WeatherFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A premium weather dashboard built in React 19 + TypeScript, implementing the
+[Premium Weather Dashboard Design](../Premium%20Weather%20Dashboard%20Design)
+pixel-for-pixel: glass-card layout, condition-based backgrounds, animated
+weather icons, and dark/light theming.
 
-Currently, two official plugins are available:
+**Live data, no API key required.** Weather comes from
+[Open-Meteo](https://open-meteo.com/) (forecast, sunrise/sunset, UV, air
+quality) and [BigDataCloud](https://www.bigdatacloud.com/) (reverse
+geocoding for "use my location") — both free, keyless, no signup.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Search any city, with debounced live prefetching and Enter-to-search
+- Automatic location detection on first visit (falls back gracefully if denied)
+- Recent searches (last 5) and favorites, persisted in `localStorage`
+- Current conditions, feels-like, hi/lo, humidity, wind, pressure, visibility,
+  UV index, cloudiness
+- Air quality gauge (US EPA AQI) and animated sunrise/sunset progress bar
+- 24-hour and 5-day forecasts
+- Dark/light theme with animated transition, remembered across visits
+- Skeleton loading states, designed error cards (offline, not-found,
+  rate-limited, timeout), and full keyboard/ARIA accessibility
+- Responsive from 390px mobile up to 1440px desktop
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech stack
 
-## Expanding the Oxlint configuration
+React 19 · TypeScript · Vite · Tailwind CSS v4 · TanStack Query · Axios ·
+Framer Motion · React Router · Lucide/React Icons · react-hot-toast
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Getting started
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open [http://localhost:5173](http://localhost:5173). No environment
+variables or API keys are needed — the app works out of the box.
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run Oxlint |
+
+## Project structure
+
+```
+src/
+  api/          Axios client + error classification
+  components/   layout, cards, forecast, weather, common
+  constants/    theme tokens, quick cities, metric definitions
+  contexts/     ThemeContext (light/dark)
+  hooks/        useCityWeather, useRecentSearches, useFavorites, ...
+  pages/        Dashboard, NotFound
+  services/     weatherService, locationService, transformWeather
+  types/        domain types + Open-Meteo response types
+  utils/        WMO condition mapping, AQI classification, storage
+```
