@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; -webkit-font-smoothing:antialiased; }
+    * { box-sizing:border-box; }
+    ::-webkit-scrollbar { height:0; width:0; }
+    @keyframes shimmer { 0%{background-position:-400px 0;} 100%{background-position:400px 0;} }
+    @keyframes floatSlow { 0%,100%{ transform:translateY(0px);} 50%{ transform:translateY(-14px);} }
+  </style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;font-family:'Inter',sans-serif;background:{{ t.bgGradient }};transition:background 0.7s ease;position:relative;overflow-x:hidden;color:{{ t.text }};">
+
+  <div style="position:absolute;top:-80px;right:-60px;width:340px;height:340px;border-radius:50%;background:{{ t.blobA }};filter:blur(60px);opacity:0.5;animation:floatSlow 12s ease-in-out infinite;pointer-events:none;"></div>
+  <div style="position:absolute;bottom:-100px;left:-80px;width:380px;height:380px;border-radius:50%;background:{{ t.blobB }};filter:blur(70px);opacity:0.45;animation:floatSlow 15s ease-in-out infinite reverse;pointer-events:none;"></div>
+
+  <div style="position:sticky;top:0;z-index:20;backdrop-filter:blur(20px);background:{{ t.navBg }};border-bottom:1px solid {{ t.border }};">
+    <div style="max-width:1280px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;border-radius:10px;background:{{ t.accentGradient }};box-shadow:0 4px 14px {{ t.accentShadow }};position:relative;">
+          <div style="position:absolute;top:9px;left:8px;width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.95);"></div>
+          <div style="position:absolute;bottom:7px;left:6px;width:22px;height:11px;border-radius:999px;background:rgba(255,255,255,0.95);"></div>
+        </div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-0.02em;color:{{ t.text }};">WeatherFlow</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div onClick="{{ toggleTheme }}" style="width:52px;height:30px;border-radius:999px;background:{{ t.toggleBg }};position:relative;cursor:pointer;border:1px solid {{ t.border }};transition:background 0.3s;">
+          <div style="position:absolute;top:2px;left:{{ t.toggleLeft }};width:24px;height:24px;border-radius:50%;background:{{ t.toggleKnob }};transition:left 0.3s ease;box-shadow:0 2px 6px rgba(0,0,0,0.25);"></div>
+        </div>
+        <div style="width:38px;height:38px;border-radius:11px;background:{{ t.surface }};border:1px solid {{ t.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:{{ t.surfaceHover }};">
+          <div style="width:16px;height:16px;border-radius:50%;border:2px solid {{ t.textSecondary }};position:relative;"></div>
+        </div>
+        <div style="width:38px;height:38px;border-radius:50%;background:{{ t.accentGradient }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;">JL</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1280px;margin:0 auto;padding:56px 32px 24px;position:relative;z-index:1;">
+
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;margin-bottom:44px;">
+      <div>
+        <div style="font-size:34px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Search for any city</div>
+        <div style="font-size:16px;color:{{ t.textSecondary }};">Get accurate real-time weather information anywhere in the world.</div>
+      </div>
+
+      <div style="display:flex;gap:12px;width:100%;max-width:560px;">
+        <div style="flex:1;position:relative;display:flex;align-items:center;background:{{ t.surface }};border:1px solid {{ t.borderStrong }};border-radius:18px;padding:0 18px;height:58px;backdrop-filter:blur(16px);box-shadow:{{ t.shadowSoft }};">
+          <div style="width:18px;height:18px;border-radius:50%;border:2px solid {{ t.textSecondary }};margin-right:10px;flex-shrink:0;"></div>
+          <input value="{{ searchInput }}" onChange="{{ onSearchChange }}" onKeyDown="{{ onSearchKeyDown }}" placeholder="Try “Tokyo” or “Reykjavik”…" style="border:none;outline:none;background:transparent;font-size:16px;font-family:'Inter',sans-serif;color:{{ t.text }};width:100%;" />
+        </div>
+        <div onClick="{{ onSearchSubmit }}" style="height:58px;padding:0 26px;border-radius:18px;background:{{ t.accentGradient }};color:#fff;font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 20px {{ t.accentShadow }};flex-shrink:0;" style-hover="transform:translateY(-1px);">Search</div>
+      </div>
+
+      <sc-if value="{{ searchError }}">
+        <div style="font-size:14px;color:{{ t.danger }};">{{ searchError }}</div>
+      </sc-if>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <sc-for list="{{ cities }}" as="city" hint-placeholder-count="4">
+          <div onClick="{{ city.select }}" style="padding:8px 16px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;background:{{ city.chipBg }};color:{{ city.chipColor }};border:1px solid {{ city.chipBorder }};transition:all 0.2s;">{{ city.name }}</div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;margin-bottom:24px;" data-screen-label="hero">
+      <div style="background:{{ t.card }};border:1px solid {{ t.border }};border-radius:28px;padding:40px;backdrop-filter:blur(24px);box-shadow:{{ t.shadowCard }};position:relative;overflow:hidden;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:30px;font-weight:700;letter-spacing:-0.02em;">{{ active.name }}</div>
+            <div style="font-size:15px;color:{{ t.textSecondary }};margin-top:2px;">{{ active.country }} · {{ dateStr }}</div>
+          </div>
+          <dc-import name="WeatherIcon" condition="{{ active.condition }}" size="88" hint-size="88,88"></dc-import>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:18px;margin-top:18px;">
+          <div style="font-size:80px;font-weight:800;letter-spacing:-0.04em;line-height:1;">{{ active.temp }}°</div>
+          <div style="padding-bottom:14px;">
+            <div style="font-size:20px;font-weight:600;">{{ active.conditionLabel }}</div>
+            <div style="font-size:14px;color:{{ t.textSecondary }};margin-top:2px;">Feels like {{ active.feelsLike }}° · H:{{ active.high }}° L:{{ active.low }}°</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:24px;">
+        <div style="flex:1;background:{{ t.card }};border:1px solid {{ t.border }};border-radius:28px;padding:26px 28px;backdrop-filter:blur(24px);box-shadow:{{ t.shadowCard }};">
+          <div style="font-size:14px;font-weight:600;color:{{ t.textSecondary }};margin-bottom:14px;">AIR QUALITY</div>
+          <div style="display:flex;align-items:center;gap:20px;">
+            <div style="width:76px;height:76px;border-radius:50%;background:conic-gradient({{ active.aqiColor }} {{ active.aqiPct }}%, {{ t.gaugeTrack }} 0);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <div style="width:58px;height:58px;border-radius:50%;background:{{ t.card2 }};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;">{{ active.aqi }}</div>
+            </div>
+            <div>
+              <div style="font-size:16px;font-weight:700;color:{{ active.aqiColor }};">{{ active.aqiLabel }}</div>
+              <div style="font-size:13px;color:{{ t.textSecondary }};margin-top:4px;line-height:1.4;">{{ active.aqiTip }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;background:{{ t.card }};border:1px solid {{ t.border }};border-radius:28px;padding:26px 28px;backdrop-filter:blur(24px);box-shadow:{{ t.shadowCard }};">
+          <div style="font-size:14px;font-weight:600;color:{{ t.textSecondary }};margin-bottom:16px;">SUNRISE &amp; SUNSET</div>
+          <div style="position:relative;height:6px;border-radius:999px;background:{{ t.gaugeTrack }};margin:18px 4px;">
+            <div style="position:absolute;left:0;top:0;height:100%;width:{{ active.sunPct }}%;background:{{ t.accentGradient }};border-radius:999px;"></div>
+            <div style="position:absolute;top:50%;left:{{ active.sunPct }}%;width:16px;height:16px;border-radius:50%;background:#FFD24A;box-shadow:0 0 12px rgba(255,210,74,0.8);transform:translate(-50%,-50%);"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:{{ t.textSecondary }};margin-top:6px;">
+            <div><span style="font-weight:600;color:{{ t.text }};">{{ active.sunrise }}</span> Sunrise</div>
+            <div><span style="font-weight:600;color:{{ t.text }};">{{ active.sunset }}</span> Sunset</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:18px;margin-bottom:24px;">
+      <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="6">
+        <div style="background:{{ t.card }};border:1px solid {{ t.border }};border-radius:22px;padding:22px;backdrop-filter:blur(20px);box-shadow:{{ t.shadowCard }};transition:transform 0.2s;" style-hover="transform:translateY(-4px);">
+          <div style="width:36px;height:36px;border-radius:11px;background:{{ t.iconBg }};margin-bottom:14px;"></div>
+          <div style="font-size:13px;color:{{ t.textSecondary }};font-weight:500;margin-bottom:6px;">{{ m.label }}</div>
+          <div style="font-size:26px;font-weight:700;letter-spacing:-0.01em;">{{ m.value }}</div>
+          <div style="font-size:12px;color:{{ t.textTertiary }};margin-top:4px;">{{ m.desc }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background:{{ t.card }};border:1px solid {{ t.border }};border-radius:28px;padding:28px;backdrop-filter:blur(24px);box-shadow:{{ t.shadowCard }};margin-bottom:24px;">
+      <div style="font-size:14px;font-weight:600;color:{{ t.textSecondary }};margin-bottom:18px;">HOURLY FORECAST</div>
+      <div style="display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;">
+        <sc-for list="{{ hourly }}" as="h" hint-placeholder-count="8">
+          <div style="flex-shrink:0;width:92px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 10px;border-radius:18px;background:{{ t.card2 }};border:1px solid {{ t.border }};transition:transform 0.2s;" style-hover="transform:translateY(-4px);">
+            <div style="font-size:13px;color:{{ t.textSecondary }};font-weight:500;">{{ h.time }}</div>
+            <dc-import name="WeatherIcon" condition="{{ h.condition }}" size="34" hint-size="34,34"></dc-import>
+            <div style="font-size:17px;font-weight:700;">{{ h.temp }}°</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:{{ t.card }};border:1px solid {{ t.border }};border-radius:28px;padding:28px;backdrop-filter:blur(24px);box-shadow:{{ t.shadowCard }};margin-bottom:40px;">
+      <div style="font-size:14px;font-weight:600;color:{{ t.textSecondary }};margin-bottom:10px;">5-DAY FORECAST</div>
+      <sc-for list="{{ daily }}" as="d" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:18px;padding:16px 6px;border-bottom:1px solid {{ t.border }};" style-hover="background:{{ t.surfaceHover }};">
+          <div style="width:80px;font-size:15px;font-weight:600;">{{ d.day }}</div>
+          <dc-import name="WeatherIcon" condition="{{ d.condition }}" size="30" hint-size="30,30"></dc-import>
+          <div style="width:70px;font-size:13px;color:{{ t.textSecondary }};">{{ d.conditionLabel }}</div>
+          <div style="flex:1;display:flex;align-items:center;gap:6px;font-size:13px;color:{{ t.textSecondary }};justify-content:flex-end;">
+            <div style="width:8px;height:8px;border-radius:50%;background:{{ t.accent }};opacity:0.6;"></div>{{ d.rain }}%
+          </div>
+          <div style="width:90px;text-align:right;font-size:15px;font-weight:600;">{{ d.high }}° <span style="color:{{ t.textTertiary }};font-weight:500;">{{ d.low }}°</span></div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="text-align:center;padding:28px 0 40px;border-top:1px solid {{ t.border }};color:{{ t.textTertiary }};font-size:13px;">
+      WeatherFlow — designed for clarity, built for calm mornings.
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1200}}">
+const CITY_DATA = [
+  {
+    id: 'sf', name: 'San Francisco', country: 'United States', condition: 'cloudy', conditionLabel: 'Partly Cloudy',
+    temp: 18, feelsLike: 17, high: 20, low: 14,
+    humidity: '68%', wind: '14 mph', pressure: '1015 hPa', visibility: '9 mi', uv: '3', cloud: '55%',
+    aqi: 42, aqiLabel: 'Good', aqiColor: '#34C759', aqiPct: 24, aqiTip: 'Air quality is ideal for outdoor activity.',
+    sunrise: '6:12 AM', sunset: '8:24 PM', sunPct: 58,
+    hourly: [
+      { time: 'Now', temp: 18, condition: 'cloudy' }, { time: '1PM', temp: 19, condition: 'cloudy' },
+      { time: '2PM', temp: 20, condition: 'sunny' }, { time: '3PM', temp: 19, condition: 'sunny' },
+      { time: '4PM', temp: 18, condition: 'cloudy' }, { time: '5PM', temp: 17, condition: 'cloudy' },
+      { time: '6PM', temp: 16, condition: 'fog' }, { time: '7PM', temp: 15, condition: 'night' },
+    ],
+    daily: [
+      { day: 'Today', condition: 'cloudy', conditionLabel: 'Cloudy', high: 20, low: 14, rain: 10 },
+      { day: 'Tue', condition: 'sunny', conditionLabel: 'Sunny', high: 22, low: 15, rain: 0 },
+      { day: 'Wed', condition: 'fog', conditionLabel: 'Foggy', high: 17, low: 13, rain: 5 },
+      { day: 'Thu', condition: 'cloudy', conditionLabel: 'Cloudy', high: 19, low: 14, rain: 15 },
+      { day: 'Fri', condition: 'rain', conditionLabel: 'Rain', high: 16, low: 12, rain: 60 },
+    ],
+  },
+  {
+    id: 'dubai', name: 'Dubai', country: 'United Arab Emirates', condition: 'sunny', conditionLabel: 'Clear Sky',
+    temp: 39, feelsLike: 43, high: 41, low: 31,
+    humidity: '38%', wind: '9 mph', pressure: '1008 hPa', visibility: '10 mi', uv: '10', cloud: '4%',
+    aqi: 96, aqiLabel: 'Moderate', aqiColor: '#FFB020', aqiPct: 55, aqiTip: 'Sensitive groups should limit prolonged exertion outdoors.',
+    sunrise: '5:38 AM', sunset: '7:12 PM', sunPct: 72,
+    hourly: [
+      { time: 'Now', temp: 39, condition: 'sunny' }, { time: '1PM', temp: 41, condition: 'sunny' },
+      { time: '2PM', temp: 42, condition: 'sunny' }, { time: '3PM', temp: 41, condition: 'sunny' },
+      { time: '4PM', temp: 39, condition: 'sunny' }, { time: '5PM', temp: 37, condition: 'sunny' },
+      { time: '6PM', temp: 34, condition: 'sunny' }, { time: '7PM', temp: 31, condition: 'night' },
+    ],
+    daily: [
+      { day: 'Today', condition: 'sunny', conditionLabel: 'Sunny', high: 41, low: 31, rain: 0 },
+      { day: 'Tue', condition: 'sunny', conditionLabel: 'Sunny', high: 42, low: 30, rain: 0 },
+      { day: 'Wed', condition: 'sunny', conditionLabel: 'Clear', high: 40, low: 30, rain: 0 },
+      { day: 'Thu', condition: 'cloudy', conditionLabel: 'Hazy', high: 39, low: 29, rain: 0 },
+      { day: 'Fri', condition: 'sunny', conditionLabel: 'Sunny', high: 41, low: 30, rain: 0 },
+    ],
+  },
+  {
+    id: 'tokyo', name: 'Tokyo', country: 'Japan', condition: 'rain', conditionLabel: 'Light Rain',
+    temp: 21, feelsLike: 22, high: 23, low: 19,
+    humidity: '82%', wind: '11 mph', pressure: '1002 hPa', visibility: '5 mi', uv: '2', cloud: '90%',
+    aqi: 58, aqiLabel: 'Moderate', aqiColor: '#FFB020', aqiPct: 33, aqiTip: 'Air quality is acceptable for most individuals.',
+    sunrise: '4:48 AM', sunset: '6:52 PM', sunPct: 47,
+    hourly: [
+      { time: 'Now', temp: 21, condition: 'rain' }, { time: '1PM', temp: 21, condition: 'rain' },
+      { time: '2PM', temp: 22, condition: 'rain' }, { time: '3PM', temp: 21, condition: 'storm' },
+      { time: '4PM', temp: 20, condition: 'rain' }, { time: '5PM', temp: 20, condition: 'cloudy' },
+      { time: '6PM', temp: 19, condition: 'cloudy' }, { time: '7PM', temp: 18, condition: 'night' },
+    ],
+    daily: [
+      { day: 'Today', condition: 'rain', conditionLabel: 'Rain', high: 23, low: 19, rain: 80 },
+      { day: 'Tue', condition: 'storm', conditionLabel: 'Storms', high: 22, low: 19, rain: 90 },
+      { day: 'Wed', condition: 'cloudy', conditionLabel: 'Cloudy', high: 24, low: 20, rain: 30 },
+      { day: 'Thu', condition: 'sunny', conditionLabel: 'Sunny', high: 26, low: 21, rain: 5 },
+      { day: 'Fri', condition: 'cloudy', conditionLabel: 'Cloudy', high: 25, low: 20, rain: 20 },
+    ],
+  },
+  {
+    id: 'rky', name: 'Reykjavik', country: 'Iceland', condition: 'snow', conditionLabel: 'Light Snow',
+    temp: -2, feelsLike: -6, high: 0, low: -5,
+    humidity: '74%', wind: '22 mph', pressure: '996 hPa', visibility: '4 mi', uv: '1', cloud: '80%',
+    aqi: 18, aqiLabel: 'Excellent', aqiColor: '#34C759', aqiPct: 10, aqiTip: 'Air is exceptionally clean today.',
+    sunrise: '10:52 AM', sunset: '4:18 PM', sunPct: 38,
+    hourly: [
+      { time: 'Now', temp: -2, condition: 'snow' }, { time: '1PM', temp: -1, condition: 'snow' },
+      { time: '2PM', temp: -1, condition: 'cloudy' }, { time: '3PM', temp: -2, condition: 'snow' },
+      { time: '4PM', temp: -3, condition: 'night' }, { time: '5PM', temp: -4, condition: 'night' },
+      { time: '6PM', temp: -5, condition: 'night' }, { time: '7PM', temp: -5, condition: 'night' },
+    ],
+    daily: [
+      { day: 'Today', condition: 'snow', conditionLabel: 'Snow', high: 0, low: -5, rain: 70 },
+      { day: 'Tue', condition: 'snow', conditionLabel: 'Snow', high: -1, low: -6, rain: 65 },
+      { day: 'Wed', condition: 'cloudy', conditionLabel: 'Cloudy', high: 1, low: -4, rain: 20 },
+      { day: 'Thu', condition: 'fog', conditionLabel: 'Foggy', high: 2, low: -3, rain: 10 },
+      { day: 'Fri', condition: 'sunny', conditionLabel: 'Clear', high: 1, low: -5, rain: 0 },
+    ],
+  },
+];
+
+const LIGHT = {
+  bg: '#F5F6F8', text: '#1A1D24', textSecondary: '#5B6270', textTertiary: '#8A90A0',
+  border: 'rgba(20,25,40,0.08)', borderStrong: 'rgba(20,25,40,0.12)',
+  surface: 'rgba(255,255,255,0.6)', surfaceHover: 'rgba(255,255,255,0.9)',
+  card: 'rgba(255,255,255,0.65)', card2: 'rgba(255,255,255,0.8)',
+  navBg: 'rgba(245,246,248,0.7)', gaugeTrack: 'rgba(20,25,40,0.08)', iconBg: 'rgba(58,110,255,0.12)',
+  accent: '#3A6EFF', accentGradient: 'linear-gradient(135deg, #4C7CFF, #6FA0FF)', accentShadow: 'rgba(58,110,255,0.35)',
+  danger: '#E5484D', toggleBg: '#E2E5EC', toggleKnob: '#FFFFFF', toggleLeft: '2px',
+  shadowSoft: '0 8px 24px rgba(20,25,40,0.06)', shadowCard: '0 16px 40px rgba(20,25,40,0.08)',
+};
+const DARK = {
+  bg: '#0B0F1A', text: '#F0F2F8', textSecondary: '#9AA3B8', textTertiary: '#6B7385',
+  border: 'rgba(255,255,255,0.08)', borderStrong: 'rgba(255,255,255,0.14)',
+  surface: 'rgba(255,255,255,0.05)', surfaceHover: 'rgba(255,255,255,0.09)',
+  card: 'rgba(255,255,255,0.045)', card2: 'rgba(255,255,255,0.07)',
+  navBg: 'rgba(11,15,26,0.6)', gaugeTrack: 'rgba(255,255,255,0.1)', iconBg: 'rgba(56,189,248,0.15)',
+  accent: '#38BDF8', accentGradient: 'linear-gradient(135deg, #38BDF8, #6366F1)', accentShadow: 'rgba(56,189,248,0.4)',
+  danger: '#FF6B6B', toggleBg: 'rgba(255,255,255,0.1)', toggleKnob: '#38BDF8', toggleLeft: '24px',
+  shadowSoft: '0 8px 24px rgba(0,0,0,0.3)', shadowCard: '0 20px 50px rgba(0,0,0,0.4)',
+};
+
+const CONDITION_BG = {
+  sunny: { light: 'linear-gradient(160deg, #EAF2FF 0%, #F5F6F8 55%)', dark: 'linear-gradient(160deg, #142033 0%, #0B0F1A 60%)' },
+  cloudy: { light: 'linear-gradient(160deg, #EDEFF4 0%, #F5F6F8 55%)', dark: 'linear-gradient(160deg, #10151F 0%, #0B0F1A 60%)' },
+  rain: { light: 'linear-gradient(160deg, #DCE3EE 0%, #F0F2F5 55%)', dark: 'linear-gradient(160deg, #0E1420 0%, #0B0F1A 60%)' },
+  snow: { light: 'linear-gradient(160deg, #F3F6FC 0%, #FFFFFF 55%)', dark: 'linear-gradient(160deg, #131A26 0%, #0B0F1A 60%)' },
+  storm: { light: 'linear-gradient(160deg, #E4E1F0 0%, #F1F0F5 55%)', dark: 'linear-gradient(160deg, #180F26 0%, #0B0F1A 60%)' },
+};
+
+const METRIC_DEFS = [
+  { key: 'humidity', label: 'Humidity', desc: 'Relative humidity' },
+  { key: 'wind', label: 'Wind Speed', desc: 'Sustained winds' },
+  { key: 'pressure', label: 'Pressure', desc: 'Sea level' },
+  { key: 'visibility', label: 'Visibility', desc: 'Clear range' },
+  { key: 'uv', label: 'UV Index', desc: 'Peak exposure' },
+  { key: 'cloud', label: 'Cloudiness', desc: 'Sky coverage' },
+];
+
+class Component extends DCLogic {
+  state = { theme: 'dark', activeId: 'sf', searchInput: '', searchError: null };
+
+  toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+
+  selectCity = (id) => this.setState({ activeId: id, searchInput: '', searchError: null });
+
+  onSearchChange = (e) => this.setState({ searchInput: e.target.value, searchError: null });
+
+  runSearch = () => {
+    const q = this.state.searchInput.trim().toLowerCase();
+    if (!q) return;
+    const match = CITY_DATA.find(c => c.name.toLowerCase().includes(q));
+    if (match) {
+      this.setState({ activeId: match.id, searchError: null });
+    } else {
+      this.setState({ searchError: `No city found for "${this.state.searchInput}". Try San Francisco, Dubai, Tokyo, or Reykjavik.` });
+    }
+  };
+
+  onSearchSubmit = () => this.runSearch();
+  onSearchKeyDown = (e) => { if (e.key === 'Enter') this.runSearch(); };
+
+  renderVals() {
+    const themeKey = this.state.theme;
+    const base = themeKey === 'dark' ? DARK : LIGHT;
+    const active = CITY_DATA.find(c => c.id === this.state.activeId) || CITY_DATA[0];
+    const bgGradient = (CONDITION_BG[active.condition] || CONDITION_BG.cloudy)[themeKey];
+
+    const t = { ...base, bgGradient,
+      blobA: themeKey === 'dark' ? 'rgba(56,189,248,0.25)' : 'rgba(76,124,255,0.18)',
+      blobB: themeKey === 'dark' ? 'rgba(99,102,241,0.22)' : 'rgba(111,160,255,0.15)',
+    };
+
+    const dateStr = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+    const cities = CITY_DATA.map(c => ({
+      id: c.id, name: c.name, select: () => this.selectCity(c.id),
+      chipBg: c.id === active.id ? t.accentGradient : t.surface,
+      chipColor: c.id === active.id ? '#fff' : t.textSecondary,
+      chipBorder: c.id === active.id ? 'transparent' : t.border,
+    }));
+
+    const metrics = METRIC_DEFS.map(m => ({ label: m.label, desc: m.desc, value: active[m.key] }));
+
+    return {
+      t, active, dateStr, cities, metrics,
+      hourly: active.hourly, daily: active.daily,
+      searchInput: this.state.searchInput, searchError: this.state.searchError,
+      toggleTheme: this.toggleTheme,
+      onSearchChange: this.onSearchChange, onSearchKeyDown: this.onSearchKeyDown, onSearchSubmit: this.onSearchSubmit,
+    };
+  }
+}
+</script>
+</body>
+</html>

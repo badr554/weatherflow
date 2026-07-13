@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 12s ease-in-out infinite;
+}
+
+.animate-float-slow-reverse {
+  animation: floatSlow 15s ease-in-out infinite reverse;
+}
+
+.skeleton-shimmer {
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer,
+  .animate-float-slow,
+  .animate-float-slow-reverse {
+    animation: none;
+  }
+}
+
+.page-container {
+  padding: 56px 32px 24px;
+}
+
+.nav-inner {
+  padding: 18px 32px;
+}
+
+.hero-grid {
+  grid-template-columns: 1.3fr 1fr;
+}
+
+@media (max-width: 1024px) {
+  .page-container {
+    padding: 40px 24px 16px;
+  }
+  .nav-inner {
+    padding: 16px 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-container {
+    padding: 32px 16px 12px;
+  }
+  .nav-inner {
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .daily-row-label {
+    display: none;
+  }
+  .hero-title {
+    font-size: 26px !important;
+  }
+  .hero-temp {
+    font-size: 60px !important;
+  }
+}
